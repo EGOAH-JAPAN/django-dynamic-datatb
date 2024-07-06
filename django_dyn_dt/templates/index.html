@@ -26,7 +26,7 @@
 
         <!-- page title -->
         <div class="header p-3 pb-0 item d-flex justify-content-between">
-            <h1 class="model-name">Model Name</h1>
+            <h1 class="display-name">{{ display_name }}</h1>
         </div>
 
         <!-- DATA Container -->
@@ -127,7 +127,7 @@
       import {setData , setModelName} from "{% static 'data/index.js' %}"
 
       const headings = [
-        {% for item in headings %}
+        {% for item in display_headings %}
           '{{ item }}',
         {% endfor %}
       ];

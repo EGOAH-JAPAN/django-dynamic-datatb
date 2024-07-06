@@ -50,7 +50,9 @@ def data_table_view(request, **kwargs):
         return render(request, '404.html', status=404)
     return render(request, 'index.html', context={
         'model_name': kwargs.get('model_name'),
+        'display_name': model_class._meta.verbose_name or kwargs.get('model_name'),
         'headings': headings,
+        'display_headings': _get_display_headings(model_class),
         'data': [[getattr(record, heading) for heading in headings] for record in data],
         'is_date': [True if type(field) == DateField else False for field in model_class._meta.get_fields()],
         'total_pages': range(1, math.ceil(all_data.count() / entries) + 1),
@@ -236,6 +238,14 @@ def _get_headings(model_class, filter_relations=True):
         if filter_relations and _is_relation_field(field):
             continue
         headings.append(field.name)
+    return headings
+
+def _get_display_headings(model_class, filter_relations=True):
+    headings = []
+    for field in model_class._meta.get_fields():
+        if filter_relations and _is_relation_field(field):
+            continue
+        headings.append(field.verbose_name or field.name)
     return headings
 
 def _is_relation_field(field):
