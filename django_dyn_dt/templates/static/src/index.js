@@ -39,7 +39,7 @@ myData.data.forEach((d,i) => {
 
     const editBtn = `<i class="btn-outline-primary edit bi bi-pencil-square" data-bs-toggle="modal" data-bs-target="#exampleModal"></i>`
     
-    const removeBtn = `<i class="btn-outline-danger remove bi bi-eraser"></i>`
+    const removeBtn = `<i class="btn-outline-danger remove bi bi-eraser"></i>`;
 
     newColumn.push(editBtn + " &nbsp; " + removeBtn)
 })
@@ -50,18 +50,19 @@ dataTable.columns().add({
 })
         // add funcs
 dataTable.table.addEventListener('click', (e) => {
-    if (e.target.nodeName === 'I' ) {
+    if (e.target.nodeName === 'I') {
         const row = e.target.closest('tr');
         if (e.target.className.includes('remove')) {
-            removeRow(dataTable,row.dataIndex)
-        }
-        else if (e.target.className.includes('edit')) {
+            if (confirm("削除します。よろしいですか")) {
+                removeRow(dataTable, row.dataIndex);
+            }
+        } else if (e.target.className.includes('edit')) {
             const rowContent = [].slice.call(dataTable.data[row.dataIndex].cells).map((cell) => { return cell.textContent; });
-            formType = formTypes.EDIT
-            formConstructor(formTypes.EDIT,rowContent)
+            formType = formTypes.EDIT;
+            formConstructor(formTypes.EDIT, rowContent);
         }
     }
-}) 
+});
 
 window.onload = () => {
     if (sessionStorage.getItem('register') == null)
