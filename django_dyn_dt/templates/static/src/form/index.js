@@ -17,7 +17,7 @@ export const formConstructor = (formType,item) => {
         
         const label = document.createElement('label')
         label.setAttribute('htmlFor',i)
-        label.innerHTML = d;
+        label.innerHTML = myData.displayHeadings[i];
         label.className = "form-label m-0";
 
         const input = document.createElement('input');

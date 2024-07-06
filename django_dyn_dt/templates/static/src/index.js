@@ -15,14 +15,18 @@ import { formConstructor, formTypes } from './form/index.js'
 let formType = formTypes.ADD
 
 // table
+console.log(myData)
 const dataTable = new simpleDatatables.DataTable('table' , {
-    data: myData,
+    data: {
+        headings: myData.displayHeadings,
+        data: myData.data
+    },
     perPageSelect: [10,25,50],
     perPage: parseInt(new URLSearchParams(window.location.search).get('entries')) || 10,
     labels: {
         placeholder: "Search...",
         perPage: "{select} 件/ページ",
-        noRows: "No entries to found",
+        noRows: "データは見つかりませんでした。",
         // info: "Showing {start} to {end} of {rows} entries",
         info: "{rows} 件中 {start}~{end} 件を表示",
     },
@@ -122,5 +126,5 @@ const getFormData = () => {
 
 // style
 // modelName
-document.querySelector('.model-name').innerHTML = modelName
+// document.querySelector('.model-name').innerHTML = modelName
 document.querySelector('.dataTable-top').className += ' d-flex justify-content-between'

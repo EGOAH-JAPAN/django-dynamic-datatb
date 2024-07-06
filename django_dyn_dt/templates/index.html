@@ -127,6 +127,12 @@
       import {setData , setModelName} from "{% static 'data/index.js' %}"
 
       const headings = [
+        {% for item in headings %}
+          '{{ item }}',
+        {% endfor %}
+      ];
+
+      const displayHeadings = [
         {% for item in display_headings %}
           '{{ item }}',
         {% endfor %}
@@ -146,7 +152,7 @@
           {% endfor %}
       ];
 
-      setData(headings , data , isDate);
+      setData(headings, displayHeadings , data , isDate);
 
       setModelName(
           '{{ model_name }}'

@@ -139,7 +139,7 @@ export const columnsManage = (dataTable) => {
 
         const label       = document.createElement('label')
         label.className   = 'form-check-label mx-1'
-        label.textContent = d
+        label.textContent = myData.displayHeadings[i]
 
         li.appendChild(check)
         li.appendChild(label)
