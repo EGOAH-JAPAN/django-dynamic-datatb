@@ -77,7 +77,15 @@ def add_record(request, **kwargs):
         }), status=400)
     body = json.loads(request.body.decode("utf-8"))
     try:
+        model_class = Utils.get_class(DYNAMIC_DATATB, kwargs.get('model_name'))
+        model_object = model_class(**body)
+        model_object.full_clean()
         thing = model_manager.create(**body)
+    except ValidationError as ve:
+        return HttpResponse(json.dumps({
+            'detail': ve.messages[0],
+            'success': False
+        }), status=400)
     except Exception as ve:
         return HttpResponse(json.dumps({
             'detail': str(ve),
@@ -127,7 +135,15 @@ def edit_record(request, **kwargs):
 
     body = json.loads(request.body.decode("utf-8"))
     try:
+        model_class = Utils.get_class(DYNAMIC_DATATB, kwargs.get('model_name'))
+        model_object = model_class(**body)
+        model_object.full_clean()
         model_manager.filter(id=to_update_id).update(**body)
+    except ValidationError as ve:
+        return HttpResponse(json.dumps({
+            'detail': ve.messages[0],
+            'success': False
+        }), status=400)
     except Exception as ve:
         return HttpResponse(json.dumps({
             'detail': str(ve),
