@@ -65,7 +65,7 @@ export const search = () => {
     
     const searchInput         = document.createElement('input')
     searchInput.className     = 'form-control mx-1'
-    searchInput.setAttribute('placeholder', 'search...')
+    searchInput.setAttribute('placeholder', '検索')
     searchInput.setAttribute('id','search')
     searchInput.setAttribute('type','text')
 
@@ -120,7 +120,7 @@ export const columnsManage = (dataTable) => {
     button.className   = 'btn dropdown-toggle'
     button.id          = 'dropdownMenuButton1'
     button.setAttribute( 'data-bs-toggle' , 'dropdown')
-    button.textContent = 'Filter'
+    button.textContent = 'フィルター'
 
     dropDown.appendChild(button)
 

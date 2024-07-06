@@ -41,12 +41,12 @@ export const formConstructor = (formType,item) => {
     })
 
     if (formType === formTypes.ADD) {
-        document.querySelector('.modal-title').innerHTML = 'add Item'
-        document.querySelector('.modal-btn').value = 'add'
+        document.querySelector('.modal-title').innerHTML = '登録'
+        document.querySelector('.modal-btn').value = '登録'
     
     } else if (formType === formTypes.EDIT) {
-        document.querySelector('.modal-title').innerHTML = 'edit Item'
-        document.querySelector('.modal-btn').value = 'edit'
+        document.querySelector('.modal-title').innerHTML = '編集'
+        document.querySelector('.modal-btn').value = '編集'
     }
 
     return form;

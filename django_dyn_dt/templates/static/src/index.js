@@ -21,9 +21,10 @@ const dataTable = new simpleDatatables.DataTable('table' , {
     perPage: parseInt(new URLSearchParams(window.location.search).get('entries')) || 10,
     labels: {
         placeholder: "Search...",
-        perPage: "{select} Items/Page",
+        perPage: "{select} 件/ページ",
         noRows: "No entries to found",
-        info: "Showing {start} to {end} of {rows} entries",
+        // info: "Showing {start} to {end} of {rows} entries",
+        info: "{rows} 件中 {start}~{end} 件を表示",
     },
     searchable: false,
 })
