@@ -1,10 +1,9 @@
-
 import os, json, math, random, string, base64
 
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
 from django.db.models.fields.related import RelatedField
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 
 # Create your views here.
@@ -125,34 +124,35 @@ def delete_record(request, **kwargs):
 @csrf_exempt
 def edit_record(request, **kwargs):
     try:
-        model_manager = Utils.get_manager(DYNAMIC_DATATB, kwargs.get('model_name'))
+        model_class = Utils.get_class(DYNAMIC_DATATB, kwargs.get("model_name"))
     except KeyError:
-        return HttpResponse(json.dumps({
-            'message': 'this model is not activated or not exist.',
-            'success': False
-        }), status=400)
-    to_update_id = kwargs.get('id')
+        return JsonResponse(
+            {"message": "this model is not activated or not exist.", "success": False},
+            status=400,
+        )
 
+    to_update_id = kwargs.get("id")
     body = json.loads(request.body.decode("utf-8"))
+
     try:
-        model_class = Utils.get_class(DYNAMIC_DATATB, kwargs.get('model_name'))
-        model_object = model_class(**body)
+        model_object = model_class.objects.get(id=to_update_id)
+    except ObjectDoesNotExist:
+        return JsonResponse(
+            {"message": "Object with given ID does not exist.", "success": False},
+            status=404,
+        )
+
+    for key, value in body.items():
+        setattr(model_object, key, value)
+
+    try:
         model_object.full_clean()
-        model_manager.filter(id=to_update_id).update(**body)
-    except ValidationError as ve:
-        return HttpResponse(json.dumps({
-            'detail': ve.messages[0],
-            'success': False
-        }), status=400)
+        model_object.save()
+        return JsonResponse({"message": "Record Updated.", "success": True})
+    except ValidationError as e:
+        return JsonResponse({"detail": e.messages[0], "success": False}, status=400)
     except Exception as ve:
-        return HttpResponse(json.dumps({
-            'detail': str(ve),
-            'success': False
-        }), status=400)
-    return HttpResponse(json.dumps({
-        'message': 'Record Updated.',
-        'success': True
-    }), status=200)
+        return JsonResponse({"detail": str(ve), "success": False}, status=400)
 
 
 @csrf_exempt
