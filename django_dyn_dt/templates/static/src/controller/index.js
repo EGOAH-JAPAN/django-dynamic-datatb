@@ -20,29 +20,30 @@ const setToastBody = (text,type) => {
 
 // Add Button + Events
 export const addController = (formType) => {
-
     const myModalEl = document.getElementById('exampleModal');
-    const modal = new bootstrap.Modal(myModalEl , {})
+    const modal = new bootstrap.Modal(myModalEl, {});
 
-    const addContainer = document.createElement('div')
+    const addContainer = document.createElement('div');
 
-    const addBtn = document.createElement('button')
-    addBtn.className = 'btn btn-primary mx-1'
-    addBtn.textContent = '+'
-    addBtn.id = 'add'
+    const addBtn = document.createElement('button');
+    addBtn.className = 'btn btn-primary mx-1';
+    addBtn.textContent = '+';
+    addBtn.id = 'add';
 
-    addContainer.appendChild(addBtn)
+    addContainer.appendChild(addBtn);
 
-    document.querySelector('.dropdown').insertBefore(addContainer ,
+    document.querySelector('.dropdown').insertBefore(addContainer,
         document.querySelector('#dropdownMenuButton1')
-    )
+    );
 
-    addBtn.addEventListener('click' , (e) => {
-        formType = formTypes.ADD
-        formConstructor(formTypes.ADD)
-        modal.show()
-    })
-}
+    addBtn.addEventListener('click', (e) => {
+        formType = formTypes.ADD;
+        formConstructor(formTypes.ADD);
+        modal.show();
+    });
+};
+
+
 
 function search_action() {
 
@@ -239,80 +240,149 @@ export const exportData = (dataTable, type) => {
 }
 
 export const addRow = async (dataTable, item) => {
-
     const myModalEl = document.getElementById('exampleModal');
-    const modal = bootstrap.Modal.getInstance(myModalEl)
+    const modal = bootstrap.Modal.getInstance(myModalEl);
 
-    delete item.id
+    clearErrors(); // Clear errors before submitting the form
 
-    // server
-    fetch (`/datatb/${modelName}/add/`, {
+    // Remove the id field from the item
+    delete item.id;
+
+    fetch(`/datatb/${modelName}/add/`, {
         method: "POST",
         body: JSON.stringify(item),
     })
-        .then((response) => {
-            if(!response.ok) {
-                return response.text().then(text => { throw new Error(text) })
-            } else {
-                return response.json()
+    .then((response) => {
+        if (!response.ok) {
+            return response.json().then((data) => {
+                throw data;
+            });
+        } else {
+            return response.json();
+        }
+    })
+    .then((result) => {
+        dataTable.rows().add([
+            result.id.toString(), ...Object.values(item), editBtn + " " + removeBtn
+        ]);
+
+        const alert = document.querySelector('.alert');
+        alert.className = alert.className.replace('d-block', 'd-none');
+        modal.hide();
+        location.reload();
+    })
+    .catch((err) => {
+        if (err.detail) {
+            const fieldErrors = err.detail;
+            displayErrors(fieldErrors);
+
+            // Show non-field related errors at the bottom
+            const nonFieldErrors = Object.keys(fieldErrors)
+                .filter(key => !document.querySelector(`input[placeholder='${key}']`))
+                .reduce((obj, key) => {
+                    obj[key] = fieldErrors[key];
+                    return obj;
+                }, {});
+
+            if (Object.keys(nonFieldErrors).length > 0) {
+                const alert = document.querySelector('.alert');
+                alert.textContent = JSON.stringify(nonFieldErrors, null, 2); // Properly format the JSON for readability
+                alert.className = alert.className.replace('d-none', 'd-block');
             }
-        })
-        .then((result) => {
-            dataTable.rows().add(
-                [...Object.values({id: result.id.toString(),...item}),editBtn + " " + removeBtn]
-            )
+        }
+    });
+};
 
-            const alert = document.querySelector('.alert')
-            alert.className = alert.className.replace('d-block','d-none')
-            location.reload();
 
-            modal.hide();
-        })
-        .catch((err) => {
-            const alert = document.querySelector('.alert')
-            alert.textContent = JSON.parse(err.toString().replace('Error: ','')).detail
-            alert.className = alert.className.replace('d-none','d-block')
-        })
-}
 
-export const editRow = (dataTable , item) => {
+const clearErrors = () => {
+    const inputs = document.querySelectorAll('.is-invalid');
+    inputs.forEach((input) => {
+        input.classList.remove('is-invalid');
+        if (input.nextElementSibling && input.nextElementSibling.classList.contains('invalid-feedback')) {
+            input.nextElementSibling.remove();
+        }
+    });
 
-    const id = item.id
-    delete item.id
+    const alert = document.querySelector('.alert');
+    alert.className = alert.className.replace('d-block', 'd-none');
+    alert.textContent = '';
+};
 
-    // server
-    fetch (`/datatb/${modelName}/edit/${id}/`, {
+export const editRow = (dataTable, item) => {
+    const id = item.id;
+    delete item.id;
+
+    clearErrors(); // Clear errors before submitting the form
+
+    fetch(`/datatb/${modelName}/edit/${id}/`, {
         method: "POST",
         body: JSON.stringify(item),
     })
-        .then((response) => {
-            if(!response.ok) {
-                return response.text().then(text => { throw new Error(text) })
-            } else {
-                return response.json()
+    .then((response) => {
+        if (!response.ok) {
+            return response.json().then((data) => {
+                throw data;
+            });
+        } else {
+            return response.json();
+        }
+    })
+    .then((result) => {
+        // Update the table row with the new data
+        dataTable.data.forEach((d, i) => {
+            if (dataTable.data[i].cells[0].data === id.toString()) {
+                dataTable.rows().remove(i);
             }
-        })
-        .then((result) => {
+        });
+        dataTable.rows().add([
+            ...Object.values(item),
+            editBtn + " " + removeBtn,
+        ]);
 
-            dataTable.data.forEach((d,i) => {
-                if ( dataTable.data[i].cells[0].data === item.id ) {
-                    dataTable.rows().remove(i)
+        location.reload();
+    })
+    .catch((err) => {
+        if (err.detail) {
+            const fieldErrors = err.detail;
+            displayErrors(fieldErrors);
+
+            // Show non-field related errors at the bottom
+            const nonFieldErrors = Object.keys(fieldErrors)
+                .filter(key => !document.querySelector(`input[placeholder='${key}']`))
+                .reduce((obj, key) => {
+                    obj[key] = fieldErrors[key];
+                    return obj;
+                }, {});
+
+            if (Object.keys(nonFieldErrors).length > 0) {
+                const alert = document.querySelector('.alert');
+                alert.textContent = JSON.stringify(nonFieldErrors);
+                alert.className = alert.className.replace('d-none', 'd-block');
+            }
+        }
+    });
+};
+
+const displayErrors = (errors) => {
+    if (typeof errors === 'object' && errors !== null) {
+        for (const [field, messages] of Object.entries(errors)) {
+            const input = document.querySelector(`input[placeholder='${field}']`);
+            if (input) {
+                input.classList.add('is-invalid');
+                let errorDiv = input.nextElementSibling;
+                if (!errorDiv || !errorDiv.classList.contains('invalid-feedback')) {
+                    errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback';
+                    input.parentNode.insertBefore(errorDiv, input.nextSibling);
                 }
-            })
-            dataTable.rows().add(
-                [...Object.values(item),editBtn + " " + removeBtn]
-            )
+                errorDiv.innerText = messages.join(', ');
+            }
+        }
+    }
+};
 
-            const alert = document.querySelector('.alert')
-            alert.className = alert.className.replace('d-block','d-none')
-            location.reload();
-        })
-        .catch((err) => {
-            const alert = document.querySelector('.alert')
-            alert.textContent = JSON.parse(err.toString().replace('Error: ','')).detail
-            alert.className = alert.className.replace('d-none','d-block')
-        })
-}
+
 
 export const removeRow = (dataTable , item) => {
 

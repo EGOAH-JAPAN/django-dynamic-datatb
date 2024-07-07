@@ -70,31 +70,38 @@ def add_record(request, **kwargs):
     try:
         model_manager = Utils.get_manager(DYNAMIC_DATATB, kwargs.get('model_name'))
     except KeyError:
-        return HttpResponse(json.dumps({
-            'message': 'this model is not activated or not exist.',
+        return JsonResponse({
+            'message': 'This model is not activated or does not exist.',
             'success': False
-        }), status=400)
+        }, status=400)
+
     body = json.loads(request.body.decode("utf-8"))
+
+    # Remove id field if it exists
+    body.pop('id', None)
+
     try:
         model_class = Utils.get_class(DYNAMIC_DATATB, kwargs.get('model_name'))
         model_object = model_class(**body)
         model_object.full_clean()
         thing = model_manager.create(**body)
     except ValidationError as ve:
-        return HttpResponse(json.dumps({
-            'detail': ve.messages[0],
+        errors = {field: error for field, error in ve.message_dict.items()}
+        return JsonResponse({
+            'detail': errors,
             'success': False
-        }), status=400)
+        }, status=400)
     except Exception as ve:
-        return HttpResponse(json.dumps({
+        return JsonResponse({
             'detail': str(ve),
             'success': False
-        }), status=400)
-    return HttpResponse(json.dumps({
+        }, status=400)
+
+    return JsonResponse({
         'id': thing.id,
         'message': 'Record Created.',
         'success': True
-    }), status=200)
+    }, status=200)
 
 
 @csrf_exempt
@@ -127,7 +134,7 @@ def edit_record(request, **kwargs):
         model_class = Utils.get_class(DYNAMIC_DATATB, kwargs.get("model_name"))
     except KeyError:
         return JsonResponse(
-            {"message": "this model is not activated or not exist.", "success": False},
+            {"message": "This model is not activated or does not exist.", "success": False},
             status=400,
         )
 
@@ -138,7 +145,7 @@ def edit_record(request, **kwargs):
         model_object = model_class.objects.get(id=to_update_id)
     except ObjectDoesNotExist:
         return JsonResponse(
-            {"message": "Object with given ID does not exist.", "success": False},
+            {"message": "Object with the given ID does not exist.", "success": False},
             status=404,
         )
 
@@ -150,7 +157,8 @@ def edit_record(request, **kwargs):
         model_object.save()
         return JsonResponse({"message": "Record Updated.", "success": True})
     except ValidationError as e:
-        return JsonResponse({"detail": e.messages[0], "success": False}, status=400)
+        errors = {field: error for field, error in e.message_dict.items()}
+        return JsonResponse({"detail": errors, "success": False}, status=400)
     except Exception as ve:
         return JsonResponse({"detail": str(ve), "success": False}, status=400)
 

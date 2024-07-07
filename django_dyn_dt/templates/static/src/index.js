@@ -101,29 +101,42 @@ exportController(dataTable)
 // Search Box
 search()
 
-document.addEventListener('submit',(e) => {
-
+document.addEventListener('submit', (e) => {
     e.preventDefault();
+    const formData = getFormData();
 
-    if (formType === formTypes.ADD)
-        addRow(dataTable, getFormData())
-    else if (formType === formTypes.EDIT)
-        editRow(dataTable, getFormData())
-
-    // console.log(getFormData());
-})
+    if (formType === formTypes.ADD) {
+        addRow(dataTable, formData);
+    } else if (formType === formTypes.EDIT) {
+        editRow(dataTable, formData);
+    }
+});
 
 const getFormData = () => {
-    const data = {}
-    const myForm = document.querySelector('form')
+    const data = {};
+    const myForm = document.querySelector('form');
 
     for (let i of myForm.elements) {
-        if (i.type === 'text' || i.type === 'date')
+        if (i.type === 'text' || i.type === 'date') {
             data[i.placeholder] = i.value;
+        }
     }
 
     return data;
-}
+};
+
+const displayErrors = (errors) => {
+    for (const [field, message] of Object.entries(errors)) {
+        const input = document.querySelector(`input[placeholder='${field}']`);
+        if (input) {
+            input.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.innerText = message.join(', ');
+            input.parentNode.appendChild(errorDiv);
+        }
+    }
+};
 
 // style
 // modelName
