@@ -125,19 +125,6 @@ const getFormData = () => {
     return data;
 };
 
-const displayErrors = (errors) => {
-    for (const [field, message] of Object.entries(errors)) {
-        const input = document.querySelector(`input[placeholder='${field}']`);
-        if (input) {
-            input.classList.add('is-invalid');
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'invalid-feedback';
-            errorDiv.innerText = message.join(', ');
-            input.parentNode.appendChild(errorDiv);
-        }
-    }
-};
-
 // style
 // modelName
 // document.querySelector('.model-name').innerHTML = modelName
