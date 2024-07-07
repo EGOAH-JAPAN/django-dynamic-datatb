@@ -15,9 +15,9 @@ div.datatable-top::after {
     display: none; !important;
 }
 
-#search-container {
+/* #search-container {
     width: 10%;
-}
+} */
 
 img {
     height: 40px;
