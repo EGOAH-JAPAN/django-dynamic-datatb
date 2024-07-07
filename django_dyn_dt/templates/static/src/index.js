@@ -15,7 +15,6 @@ import { formConstructor, formTypes } from './form/index.js'
 let formType = formTypes.ADD
 
 // table
-console.log(myData)
 const dataTable = new simpleDatatables.DataTable('table' , {
     data: {
         headings: myData.displayHeadings,
@@ -38,8 +37,7 @@ const newColumn = []
 myData.data.forEach((d,i) => {
 
     const editBtn = `<i class="btn-outline-primary edit bi bi-pencil-square" data-bs-toggle="modal" data-bs-target="#exampleModal"></i>`
-    
-    const removeBtn = `<i class="btn-outline-danger remove bi bi-eraser"></i>`;
+    const removeBtn = `<i class="btn-outline-danger remove bi bi-eraser" data-bs-toggle="modal" data-bs-target="#exampleModal"></i>`
 
     newColumn.push(editBtn + " &nbsp; " + removeBtn)
 })
@@ -53,9 +51,9 @@ dataTable.table.addEventListener('click', (e) => {
     if (e.target.nodeName === 'I') {
         const row = e.target.closest('tr');
         if (e.target.className.includes('remove')) {
-            if (confirm("削除します。よろしいですか")) {
-                removeRow(dataTable, row.dataIndex);
-            }
+            const rowContent = [].slice.call(dataTable.data[row.dataIndex].cells).map((cell) => { return cell.textContent; });
+            formType = formTypes.DELETE;
+            formConstructor(formTypes.DELETE, rowContent);
         } else if (e.target.className.includes('edit')) {
             const rowContent = [].slice.call(dataTable.data[row.dataIndex].cells).map((cell) => { return cell.textContent; });
             formType = formTypes.EDIT;
@@ -109,6 +107,8 @@ document.addEventListener('submit', (e) => {
         addRow(dataTable, formData);
     } else if (formType === formTypes.EDIT) {
         editRow(dataTable, formData);
+    } else if (formType === formTypes.DELETE) {
+        removeRow(dataTable, formData);
     }
 });
 

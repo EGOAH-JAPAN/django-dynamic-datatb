@@ -3,17 +3,14 @@ import {myData} from '../../data/index.js'
 
 export const formTypes = {
     ADD: 'add',
-    EDIT: 'edit'
+    EDIT: 'edit',
+    DELETE: 'DELETE'
 }
 
 export const formConstructor = (formType, item) => {
     const form = document.getElementById('form');
     form.className = 'd-flex flex-column gap-1 p-3';
     form.innerHTML = '';
-
-    // Clear any existing error messages
-    const invalidFeedbacks = document.querySelectorAll('.invalid-feedback');
-    invalidFeedbacks.forEach((feedback) => feedback.remove());
 
     myData.headings.forEach((d, i) => {
         const label = document.createElement('label');
@@ -31,11 +28,11 @@ export const formConstructor = (formType, item) => {
         input.className = 'form-control m-0';
         input.placeholder = d;
 
-        if (d === 'id') {
+        if (d === 'id' || formType === formTypes.DELETE) {
             input.setAttribute('disabled', 'true');
         }
 
-        if (formType === formTypes.EDIT) {
+        if (formType !== formTypes.ADD) {
             input.setAttribute('value', item[i]);
         }
 
@@ -54,6 +51,9 @@ export const formConstructor = (formType, item) => {
     } else if (formType === formTypes.EDIT) {
         document.querySelector('.modal-title').innerHTML = '編集';
         document.querySelector('.modal-btn').value = '編集';
+    } else if (formType === formTypes.DELETE) {
+        document.querySelector('.modal-title').innerHTML = '削除';
+        document.querySelector('.modal-btn').value = '削除';
     }
 
     return form;

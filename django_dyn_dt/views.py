@@ -109,23 +109,34 @@ def delete_record(request, **kwargs):
     try:
         model_manager = Utils.get_manager(DYNAMIC_DATATB, kwargs.get('model_name'))
     except KeyError:
-        return HttpResponse(json.dumps({
-            'message': 'this model is not activated or not exist.',
+        return JsonResponse({
+            'message': 'This model is not activated or does not exist.',
             'success': False
-        }), status=400)
+        }, status=400)
+    
     to_delete_id = kwargs.get('id')
     try:
         to_delete_object = model_manager.get(id=to_delete_id)
     except Exception:
-        return HttpResponse(json.dumps({
-            'message': 'matching object not found.',
+        return JsonResponse({
+            'message': 'Matching object not found.',
             'success': False
-        }), status=404)
-    to_delete_object.delete()
-    return HttpResponse(json.dumps({
-        'message': 'Record Deleted.',
-        'success': True
-    }), status=200)
+        }, status=404)
+    
+    if request.method == 'DELETE':
+        to_delete_object.delete()
+        return JsonResponse({
+            'message': 'Record Deleted.',
+            'success': True
+        }, status=200)
+    else:
+        # Return the object data for confirmation modal
+        data = {field.name: getattr(to_delete_object, field.name) for field in to_delete_object._meta.fields}
+        return JsonResponse({
+            'data': data,
+            'message': 'Record Found.',
+            'success': True
+        }, status=200)
 
 
 @csrf_exempt

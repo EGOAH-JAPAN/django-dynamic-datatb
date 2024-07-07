@@ -2,7 +2,7 @@ import {modelName, myData} from "../../data/index.js";
 import {formConstructor, formTypes} from "../form/index.js";
 
 const editBtn   = `<i class="btn-outline-primary edit bi bi-pencil-square" data-bs-toggle="modal" data-bs-target="#exampleModal"></i>`
-const removeBtn = `<i class="btn-outline-danger remove bi bi-eraser"></i>`
+const removeBtn = `<i class="btn-outline-danger remove bi bi-eraser" data-bs-toggle="modal" data-bs-target="#exampleModal"></i>`
 
 const toastLive = document.getElementById('liveToast')
 const toast     = new bootstrap.Toast(toastLive)
@@ -384,31 +384,36 @@ const displayErrors = (errors) => {
 
 
 
-export const removeRow = (dataTable , item) => {
+export const removeRow = (dataTable, item) => {
+    const id = item.id; // Use the id from the item passed in
 
-    const id = dataTable.data[item].cells[0].data
-
-    // server
-    fetch (`/datatb/${modelName}/delete/${id}/`, {
-        method: "POST",
+    fetch(`/datatb/${modelName}/delete/${id}/`, {
+        method: "DELETE", // Use DELETE method
     })
-        .then((response) => {
-            if(!response.ok) {
-                return response.text().then(text => { throw new Error(text) })
-            } else {
-                return response.json()
+    .then((response) => {
+        if (!response.ok) {
+            return response.json().then((data) => {
+                throw data;
+            });
+        } else {
+            return response.json();
+        }
+    })
+    .then((result) => {
+        // Update the table row by removing the deleted item
+        dataTable.data.forEach((d, i) => {
+            if (dataTable.data[i].cells[0].data === id.toString()) {
+                dataTable.rows().remove(i);
             }
-        })
-        .then((result) => {
-            dataTable.rows().remove(item)
+        });
 
-            setToastBody(result.message,'success')
-            toast.show()
-            location.reload()
-     })
-        .catch((err) => {
-            setToastBody(JSON.parse(err.toString().replace('Error: ','')).detail,'fail')
-            toast.show()
-        })
-
-}
+        const modal = bootstrap.Modal.getInstance(document.getElementById('exampleModal'));
+        modal.hide();
+        location.reload();
+    })
+    .catch((err) => {
+        const alert = document.querySelector('.alert');
+        alert.textContent = JSON.stringify(err);
+        alert.className = alert.className.replace('d-none', 'd-block');
+    });
+};
