@@ -1,12 +1,12 @@
-import {modelName, myData} from '../data/index.js'
-import {events} from './events/index.js'
+import { modelName, myData } from '../data/index.js'
+import { events } from './events/index.js'
 import {
     removeRow,
     addRow,
     editRow,
     search,
     columnsManage,
-    exportController, 
+    exportController,
     addController,
     middleContainer,
 } from './controller/index.js'
@@ -15,12 +15,12 @@ import { formConstructor, formTypes } from './form/index.js'
 let formType = formTypes.ADD
 
 // table
-const dataTable = new simpleDatatables.DataTable('table' , {
+const dataTable = new simpleDatatables.DataTable('table', {
     data: {
         headings: myData.displayHeadings,
         data: myData.data
     },
-    perPageSelect: [10,25,50],
+    perPageSelect: [10, 25, 50],
     perPage: parseInt(new URLSearchParams(window.location.search).get('entries')) || 10,
     labels: {
         placeholder: "Search...",
@@ -34,19 +34,19 @@ const dataTable = new simpleDatatables.DataTable('table' , {
 
 // edit & remove Button
 const newColumn = []
-myData.data.forEach((d,i) => {
+myData.data.forEach((d, i) => {
 
     const editBtn = `<i class="btn-outline-primary edit bi bi-pencil-square" data-bs-toggle="modal" data-bs-target="#exampleModal"></i>`
     const removeBtn = `<i class="btn-outline-danger remove bi bi-eraser" data-bs-toggle="modal" data-bs-target="#exampleModal"></i>`
 
     newColumn.push(editBtn + " &nbsp; " + removeBtn)
 })
-        // add buttons
+// add buttons
 dataTable.columns().add({
     heading: '',
     data: newColumn
 })
-        // add funcs
+// add funcs
 dataTable.table.addEventListener('click', (e) => {
     if (e.target.nodeName === 'I') {
         const row = e.target.closest('tr');
@@ -74,7 +74,7 @@ window.onload = () => {
     })
 
     const els = document.getElementsByClassName('form-check-input')
-    Array.prototype.forEach.call(els, function(el) {
+    Array.prototype.forEach.call(els, function (el) {
         if (hideColumns.includes(el.id)) {
             el.checked = true
         }
