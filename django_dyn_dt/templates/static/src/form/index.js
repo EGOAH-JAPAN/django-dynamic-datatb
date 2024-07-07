@@ -1,39 +1,62 @@
-
-import {myData} from '../../data/index.js'
+import { myData } from '../../data/index.js';
 
 export const formTypes = {
     ADD: 'add',
     EDIT: 'edit',
-    DELETE: 'DELETE'
-}
+    DELETE: 'delete',
+};
 
 export const formConstructor = (formType, item) => {
     const form = document.getElementById('form');
     form.className = 'd-flex flex-column gap-1 p-3';
     form.innerHTML = '';
-
+    
     myData.headings.forEach((d, i) => {
         const label = document.createElement('label');
         label.setAttribute('htmlFor', i);
         label.innerHTML = myData.displayHeadings[i];
-        label.className = "form-label m-0";
+        label.className = 'form-label m-0';
 
-        const input = document.createElement('input');
-        if (myData.isDate[i] === 'True') {
-            input.setAttribute('type', 'date');
-        } else {
-            input.setAttribute('type', 'text');
+        let input;
+        
+        switch (myData.fieldTypes[i]) {
+            case 'date':
+                input = document.createElement('input');
+                input.setAttribute('type', 'date');
+                break;
+            case 'integer':
+                input = document.createElement('input');
+                input.setAttribute('type', 'number');
+                input.setAttribute('step', '1');
+                break;
+            case 'float':
+                input = document.createElement('input');
+                input.setAttribute('type', 'number');
+                input.setAttribute('step', 'any');
+                break;
+            case 'boolean':
+                input = document.createElement('input');
+                input.setAttribute('type', 'checkbox');
+                break;
+            default:
+                input = document.createElement('input');
+                input.setAttribute('type', 'text');
+                break;
         }
-
+        
         input.className = 'form-control m-0';
         input.placeholder = d;
-
+        
         if (d === 'id' || formType === formTypes.DELETE) {
             input.setAttribute('disabled', 'true');
         }
 
-        if (formType !== formTypes.ADD) {
+        if (formType !== formTypes.ADD && myData.fieldTypes[i] !== 'boolean') {
             input.setAttribute('value', item[i]);
+        }
+
+        if (formType !== formTypes.ADD && myData.fieldTypes[i] === 'boolean') {
+            input.checked = item[i] === 'true';
         }
 
         form.appendChild(label);
@@ -58,5 +81,3 @@ export const formConstructor = (formType, item) => {
 
     return form;
 };
-
-

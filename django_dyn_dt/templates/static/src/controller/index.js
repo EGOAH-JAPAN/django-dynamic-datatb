@@ -277,20 +277,6 @@ export const addRow = async (dataTable, item) => {
             if (err.detail) {
                 const fieldErrors = err.detail;
                 displayErrors(fieldErrors);
-
-                // Show non-field related errors at the bottom
-                const nonFieldErrors = Object.keys(fieldErrors)
-                    .filter(key => !document.querySelector(`input[placeholder='${key}']`))
-                    .reduce((obj, key) => {
-                        obj[key] = fieldErrors[key];
-                        return obj;
-                    }, {});
-
-                if (Object.keys(nonFieldErrors).length > 0) {
-                    const alert = document.querySelector('.alert');
-                    alert.textContent = JSON.stringify(nonFieldErrors, null, 2); // Properly format the JSON for readability
-                    alert.className = alert.className.replace('d-none', 'd-block');
-                }
             }
         });
 };
@@ -348,25 +334,13 @@ export const editRow = (dataTable, item) => {
             if (err.detail) {
                 const fieldErrors = err.detail;
                 displayErrors(fieldErrors);
-
-                // Show non-field related errors at the bottom
-                const nonFieldErrors = Object.keys(fieldErrors)
-                    .filter(key => !document.querySelector(`input[placeholder='${key}']`))
-                    .reduce((obj, key) => {
-                        obj[key] = fieldErrors[key];
-                        return obj;
-                    }, {});
-
-                if (Object.keys(nonFieldErrors).length > 0) {
-                    const alert = document.querySelector('.alert');
-                    alert.textContent = JSON.stringify(nonFieldErrors);
-                    alert.className = alert.className.replace('d-none', 'd-block');
-                }
             }
         });
 };
 
 const displayErrors = (errors) => {
+    console.log(errors)
+    clearErrors();
     if (typeof errors === 'object' && errors !== null) {
         for (const [field, messages] of Object.entries(errors)) {
             const input = document.querySelector(`input[placeholder='${field}']`);
@@ -379,8 +353,18 @@ const displayErrors = (errors) => {
                     input.parentNode.insertBefore(errorDiv, input.nextSibling);
                 }
                 errorDiv.innerText = messages.join(', ');
+            } else {
+                // Display non-field related errors at the bottom
+                const alert = document.querySelector('.alert');
+                alert.textContent = JSON.stringify(errors, null, 2);
+                alert.className = alert.className.replace('d-none', 'd-block');
             }
         }
+    } else {
+        // Display the error directly at the bottom if it's not an object
+        const alert = document.querySelector('.alert');
+        alert.textContent = errors;
+        alert.className = alert.className.replace('d-none', 'd-block');
     }
 };
 

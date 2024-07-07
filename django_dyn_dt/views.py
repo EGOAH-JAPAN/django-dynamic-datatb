@@ -5,6 +5,8 @@ from django.db.models import Q
 from django.db.models.fields.related import RelatedField
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.db.models import CharField, DateField, IntegerField, FloatField, BooleanField
+
 
 # Create your views here.
 from django.views.decorators.csrf import csrf_exempt
@@ -47,18 +49,30 @@ def data_table_view(request, **kwargs):
     data = all_data[(page_number - 1) * entries:page_number * entries]
     if all_data.count() != 0 and not 1 <= page_number <= math.ceil(all_data.count() / entries):
         return render(request, '404.html', status=404)
+    
+    field_types = []
+    for field in model_class._meta.get_fields():
+        if isinstance(field, DateField):
+            field_types.append('date')
+        elif isinstance(field, IntegerField):
+            field_types.append('integer')
+        elif isinstance(field, FloatField):
+            field_types.append('float')
+        elif isinstance(field, BooleanField):
+            field_types.append('boolean')
+        else:
+            field_types.append('string')
+
     return render(request, 'index.html', context={
         'model_name': kwargs.get('model_name'),
         'display_name': model_class._meta.verbose_name or kwargs.get('model_name'),
         'headings': headings,
         'display_headings': _get_display_headings(model_class),
-        'data': [[getattr(record, heading) for heading in headings] for record in data],
-        'is_date': [True if type(field) == DateField else False for field in model_class._meta.get_fields()],
+        'data': [["" if (val := getattr(record, heading)) is None else val for heading in headings] for record in data],
+        'field_types': field_types,
         'total_pages': range(1, math.ceil(all_data.count() / entries) + 1),
-        'has_prev': False if page_number == 1 else (
-            True if all_data.count() != 0 else False),
-        'has_next': False if page_number == math.ceil(all_data.count() / entries) else (
-            True if all_data.count() != 0 else False),
+        'has_prev': page_number > 1,
+        'has_next': page_number < math.ceil(all_data.count() / entries),
         'current_page': page_number,
         'entries': entries,
         'search': search_key,
@@ -79,6 +93,10 @@ def add_record(request, **kwargs):
 
     # Remove id field if it exists
     body.pop('id', None)
+
+    for key, value in body.items():
+        if value == '':
+            body[key] = None
 
     try:
         model_class = Utils.get_class(DYNAMIC_DATATB, kwargs.get('model_name'))
@@ -161,6 +179,8 @@ def edit_record(request, **kwargs):
         )
 
     for key, value in body.items():
+        if value == '':
+            value = None
         setattr(model_object, key, value)
 
     try:

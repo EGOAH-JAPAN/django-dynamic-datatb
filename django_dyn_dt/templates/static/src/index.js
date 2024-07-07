@@ -117,9 +117,17 @@ const getFormData = () => {
     const myForm = document.querySelector('form');
 
     for (let i of myForm.elements) {
-        if (i.type === 'text' || i.type === 'date') {
+        if (i.type === 'text' || i.type === 'date' || i.type === 'number') {
             data[i.placeholder] = i.value;
+        } else if (i.type === 'checkbox') {
+            data[i.placeholder] = i.checked;
         }
+    }
+
+    // Manually add the ID if present and disabled
+    const idInput = myForm.querySelector('input[placeholder="id"]');
+    if (idInput && idInput.disabled) {
+        data['id'] = idInput.value;
     }
 
     return data;

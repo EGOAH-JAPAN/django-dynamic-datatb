@@ -1,12 +1,12 @@
 export let myData = {}
 export let modelName = ''
 
-export const setData = (headings, displayHeadings, data, isDate) => {
+export const setData = (headings, displayHeadings, data, fieldTypes) => {
     myData = {
         headings: headings,
         displayHeadings: displayHeadings,
         data: data,
-        isDate: isDate,
+        fieldTypes: fieldTypes,
     }
 }
 

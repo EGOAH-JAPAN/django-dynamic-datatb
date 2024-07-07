@@ -124,39 +124,37 @@
     <!-- Context injected from Backend -->
     <script type="module">
 
-      import {setData , setModelName} from "{% static 'data/index.js' %}"
+      import { setData, setModelName } from "{% static 'data/index.js' %}";
 
       const headings = [
-        {% for item in headings %}
-          '{{ item }}',
-        {% endfor %}
-      ];
-
-      const displayHeadings = [
-        {% for item in display_headings %}
-          '{{ item }}',
-        {% endfor %}
-      ];
-
-      const data = [
-        {% for item in data %}
-            [{% for i in item %}
-                '{{ i }}',
-            {% endfor %}],
-        {% endfor %}
-      ];
-
-      const isDate = [
-          {% for item in is_date %}
+          {% for item in headings %}
               '{{ item }}',
           {% endfor %}
       ];
-
-      setData(headings, displayHeadings , data , isDate);
-
-      setModelName(
-          '{{ model_name }}'
-      );
+  
+      const displayHeadings = [
+          {% for item in display_headings %}
+              '{{ item }}',
+          {% endfor %}
+      ];
+  
+      const data = [
+          {% for item in data %}
+              [{% for i in item %}
+                  '{{ i }}',
+              {% endfor %}],
+          {% endfor %}
+      ];
+  
+      const fieldTypes = [
+          {% for item in field_types %}
+              '{{ item }}',
+          {% endfor %}
+      ];
+  
+      setData(headings, displayHeadings, data, fieldTypes);
+  
+      setModelName('{{ model_name }}');
 
     </script>
 
