@@ -63,7 +63,7 @@ def data_table_view(request, **kwargs):
         else:
             field_types.append('string')
 
-    return render(request, 'index.html', context={
+    return render(request, 'table.html', context={
         'model_name': kwargs.get('model_name'),
         'display_name': model_class._meta.verbose_name or kwargs.get('model_name'),
         'headings': headings,
